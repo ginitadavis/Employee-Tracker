@@ -42,6 +42,7 @@ async function mainScreen(){
 
 }
 
+//Receives a sql code and it executes it in the terminal, then it calls the next screen
 async function executesSql(sql){
     try {
         const result = await new Promise((resolve, reject) => {
@@ -89,6 +90,7 @@ async function performAccion(action) {
 }
 //View departments
 async function viewDepartments(){
+    //Shows all the departments in the terminal
     let sql = 'SELECT * FROM department';
     executesSql(sql);
 }
@@ -271,7 +273,7 @@ async function updateEmployeeRole(){
 
         //Array of objects of the employee table
         const [manager] = await db.promise().query('SELECT * FROM employee');
-        
+
     }catch(err){
 
     }
