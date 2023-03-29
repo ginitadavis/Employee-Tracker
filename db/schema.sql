@@ -8,6 +8,8 @@ CREATE TABLE department (
     name VARCHAR(30) NOT NULL
 );
 
+ALTER TABLE department AUTO_INCREMENT = 1;
+
 CREATE TABLE role (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
@@ -17,6 +19,8 @@ CREATE TABLE role (
     REFERENCES department(id)
     ON DELETE SET NULL
 );
+
+ALTER TABLE role AUTO_INCREMENT = 1;
 
 create TABLE employee (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -28,3 +32,5 @@ create TABLE employee (
     REFERENCES role(id)
     ON DELETE SET NULL
 );
+
+ALTER TABLE employee AUTO_INCREMENT = 1;

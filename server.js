@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const { async } = require('radar-sdk-js');
 require('dotenv').config();
+const cTable = require('console.table');
 
 
 // Connect to database
@@ -41,6 +42,26 @@ async function mainScreen(){
 
 }
 
+async function executesSql(sql){
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, function(err, result) {
+                err ? reject(err) : resolve(result);
+            });
+        });
+        //Show the result of the query
+        console.table(result);
+        console.log(`
+        *** Continue to the next screen ***
+        `)
+        //Then I call the mainScreen
+        mainScreen();
+    }catch(err){
+        console.log(err);
+    }
+}
+
+//Depending on what the user selected the function for that accion executes
 async function performAccion(action) {
     switch (action){
         case 'View all departments':
@@ -66,32 +87,61 @@ async function performAccion(action) {
             break;
     }
 }
+//View departments
 async function viewDepartments(){
     let sql = 'SELECT * FROM department';
-    db.query(sql, function(err, result) {
-        console.log(err);
-        console.table(result);
-    })
-
-
+    executesSql(sql);
 }
 
+//View employees
 async function viewEmployees(){
-    console.log("View Employee");
+    let sql = `SELECT e.id AS ID, e.first_name, e.last_name, r.title AS Title, d.name as Department, r.salary as Salary, CONCAT(m.first_name, ' ', m.last_name) as Manager
+    FROM employee e
+    JOIN role r ON r.id = e.role_id
+    JOIN department d ON d.id = r.department_id
+    LEFT JOIN employee m ON e.manager_id = m.id;`;
+
+    executesSql(sql);
 }
 
+//View Roles
 async function viewRoles(){
     let sql = `SELECT role.title AS Title, role.id AS ID, department.name AS Department, role.salary AS Salary
     FROM role
     JOIN department ON department.id = role.department_id;`
-    db.query(sql, function(err, result) {
-        console.log(err);
-        console.table(result);
-    })
+    
+    executesSql(sql);
 }
 
+//Add department
 async function addDepartment(){
-    console.log("Add Department");
+
+    const dept = await inquirer
+    .prompt([
+        {
+            type: 'input',
+            message: `Please enter the department's name`,
+            name: 'name'
+        }
+    ]);
+
+    console.log(`
+    Department added succesfully!
+    `);
+
+    try {
+        let sql = `INSERT INTO department (name) VALUES (?)`
+        db.query(sql, dept.name);
+
+        console.log(`
+        *** Continue to the next screen ***
+        `)
+        //Then I call the mainScreen
+        mainScreen();
+        
+     } catch(err){
+         console.log(err);
+     }
 }
 
 async function addRole(){
@@ -132,18 +182,98 @@ async function addRole(){
             choices: departments
         }
     ]).then(function(ans) {
-        //Insert values into role table
-        let sql = `INSERT INTO role (title, salary, department_id) VALUES ('${newRole.name}', ${newRole.salary}, ${ans.answer})`
-        db.query(sql, (err, result) => (err) ? console.log(err) : console.log('success')
-        );
+        let sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`
+        db.query(sql, [newRole.name, newRole.salary, ans.answer]);
+        console.log(`
+    Role added succesfully!
+    `);
+    mainScreen();
     })
 }
 
 async function addEmployee(){
-    console.log("Add Employee");
+
+    try{
+        //Array of objects of the role table
+        const [role] = await db.promise().query('SELECT * FROM role');
+
+        //Array of objects of the employee table
+        const [manager] = await db.promise().query('SELECT * FROM employee');
+
+        //Request user the name and last name
+        let newEmployee = await inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: `Please enter the employee's first name`,
+                name: 'firstName'
+            },
+            {
+                type: 'input',
+                message: `Please enter the employee's last name`,
+                name: 'lastName'
+            }
+        ]);
+
+        //Change the 'id' inside the role query for 'value' - The value will get the id for the role stored in a variable 'value'
+        const roles = role.map(function(role2) {
+            return {
+                value: role2.id,
+                name: role2.title,
+            }
+        });
+
+        //Change the 'id' inside the employee query for 'value' - The value will get the id for the employee stored in a variable 'value'
+        const managers = manager.map(function(manager2) {
+            return {
+                value: manager2.id,
+                name: manager2.first_name+' '+manager2.last_name,
+            }
+        });
+
+        managers.unshift({value:null, name: null});
+
+        //Ask to choose the department title and store the department value (id)
+        await inquirer
+        .prompt([
+            {
+                message: `What is the employee's role?`,
+                type: 'list',
+                name: 'answerRoles',
+                choices: roles
+            },
+            {
+                message: `Who's the employee's manager?`,
+                type: 'list',
+                name: 'answerManager',
+                choices: managers
+            }
+        ]).then(function(ans) {
+            let sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
+            db.query(sql, [newEmployee.firstName, newEmployee.lastName, ans.answerRoles, ans.answerManager]);
+            
+            console.log(`
+        Employee added succesfully!
+        `);
+        mainScreen();
+        })
+
+    } catch(err){
+        console.log(err);
+    }
+
 }
 
 async function updateEmployeeRole(){
-    console.log("Update Employee Role");
+    try{
+        //Array of objects of the role table
+        const [role] = await db.promise().query('SELECT * FROM role');
+
+        //Array of objects of the employee table
+        const [manager] = await db.promise().query('SELECT * FROM employee');
+        
+    }catch(err){
+
+    }
 }
 mainScreen();
