@@ -30,7 +30,7 @@ This application is run from the terminal in a command-line application.
 
 ![alt text](assets/images/Terminal-Screenshot.png)
 
-Link to the walkthrough video that demonstrates the functionality of the README generator [Click here to watch the video](chrome-extension://mmeijimgabbpbgpdklnllpncmdofkcpn/app.html#/files/cafbbb7c-8a06-4375-yc82-888b721d0fd1)
+Link to the walkthrough video that demonstrates the functionality of the README generator [Click here to watch the video](https://drive.google.com/file/d/1aTD0u971Nic2wWYyTswJWGzdkmmq4hN4/view)
 
 
 
