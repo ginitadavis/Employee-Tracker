@@ -30,7 +30,7 @@ This application is run from the terminal in a command-line application.
 
 ![alt text](assets/images/Terminal-Screenshot.png)
 
-Link to the walkthrough video that demonstrates the functionality of the README generator [Click here to watch the video](https://drive.google.com/file/d/1aTD0u971Nic2wWYyTswJWGzdkmmq4hN4/view)
+Link to the walkthrough video that demonstrates the functionality of the Employee Tracker [Click here to watch the video](https://drive.google.com/file/d/1aTD0u971Nic2wWYyTswJWGzdkmmq4hN4/view)
 
 
 
