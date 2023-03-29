@@ -272,10 +272,51 @@ async function updateEmployeeRole(){
         const [role] = await db.promise().query('SELECT * FROM role');
 
         //Array of objects of the employee table
-        const [manager] = await db.promise().query('SELECT * FROM employee');
+        const [employee] = await db.promise().query('SELECT * FROM employee');
+
+        //The role's id will be stored in the value field, but the user will see the name while and in the backend we will get the actual id for the name
+        const roles = role.map(function(role2) {
+            return {
+                value: role2.id,
+                name: role2.title,
+            }
+        });
+
+        //The role's id will be stored in the value field, but the user will see the name while and in the backend we will get the actual id for the name
+        const employees = employee.map(function(employee2) {
+            return {
+                value: employee2.id,
+                name: employee2.first_name+' '+employee2.last_name,
+            }
+        });
+
+        //Ask to choose the department title and store the department value (id)
+        await inquirer
+        .prompt([
+            {
+                message: `Select the employee:`,
+                type: 'list',
+                name: 'answerEmployee',
+                choices: employees
+            },
+            {
+                message: `Select the new role:`,
+                type: 'list',
+                name: 'answerRoles',
+                choices: roles
+            }
+        ]).then(function(ans) {
+            let sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+            db.query(sql, [ans.answerRoles, ans.answerEmployee]);
+            
+            console.log(`
+        Employee's role updated succesfully!
+        `);
+        mainScreen();
+        });
 
     }catch(err){
-
+        console.log(err);
     }
 }
 mainScreen();
